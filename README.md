@@ -2,37 +2,19 @@
 
 A neural audio fingerprinting system for content-based audio retrieval using deep learning. This project implements a convolutional neural network that can identify and classify audio content by learning robust audio fingerprints.
 
-## 🎯 Overview
 
-This syst## 📚 References
+This project is mainly based on the following paper:
 
+- [Neural Audio Fingerprint for High-specific Audio Retrieval based on Contrastive Learning](https://arxiv.org/abs/2010.11910)
+
+## Overview
 - Audio fingerprinting techniques and neural embeddings
 - FAISS: A Library for Efficient Similarity Search
 - Mel-spectrogram processing with librosa
 - Contrastive learning for audio representation
 
-## 📄 License
 
-MIT License - see LICENSE file for details.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-*For questions or issues, please check the troubleshooting section or open an issue on GitHub.* files by:
-1. Converting audio to mel-spectrograms
-2. Extracting segments using overlapping windows
-3. Generating neural embeddings using a CNN-based fingerprint model
-4. Building a searchable index using FAISS
-5. Performing similarity search with cosine similarity
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 audio_retrieval/
@@ -57,7 +39,7 @@ audio_retrieval/
 └── README.md               # This file
 ```
 
-## 🛠️ Installation
+## Installation
 
 ### Method 1: Install as Package (Recommended)
 
@@ -85,7 +67,7 @@ pip install -r requirements.txt
 - numpy
 - tqdm
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Basic Usage
 
@@ -126,7 +108,7 @@ predicted_label, confidence = retrieval_system.query_segments(segments, top_k=20
 print(f"Prediction: {predicted_label} (confidence: {confidence:.3f})")
 ```
 
-## 🧠 Model Architecture
+## Model Architecture
 
 ### Neural Fingerprint Model
 - **Encoder**: Convolutional layers for feature extraction from mel-spectrograms
@@ -142,7 +124,7 @@ print(f"Prediction: {predicted_label} (confidence: {confidence:.3f})")
 5. **Dynamic range**: 80 dB
 6. **Frequency range**: 300-4,000 Hz
 
-## 📊 Evaluation
+## Evaluation
 
 Run the evaluation script to test accuracy across different clip lengths:
 
@@ -163,7 +145,7 @@ Accuracy (3 sec): 78.23%
 Accuracy (10 sec): 89.45%
 ```
 
-## 🔧 Configuration Options
+## Configuration Options
 
 ### ModelConfig Parameters
 ```python
@@ -183,7 +165,7 @@ ModelConfig(
 - `n_segments`: Number of segments for multi-segment queries
 - Overlap strategy: 0.5s overlap between 1s segments
 
-## 📈 Performance Tips
+## Performance Tips
 
 1. **Batch Processing**: Use larger batch sizes for better GPU utilization
 2. **Model Compilation**: Enable PyTorch compilation with `compile_mode='default'`
@@ -219,7 +201,7 @@ train_dir = "path/to/your_data/train"
 test_dir = "path/to/your_data/test"
 ```
 
-## 🔬 Technical Details
+## Technical Details
 
 ### Similarity Computation
 - **Metric**: Cosine similarity (via FAISS IndexFlatIP)
@@ -232,7 +214,7 @@ The model expects training with:
 - Data augmentation (pitch shift, time stretch, noise)
 - Hard negative mining for better embeddings
 
-## � Package Information
+## Package Information
 
 - **Author**: Mohamed Traore
 - **Email**: mohamed.trapro@gmail.com
@@ -282,41 +264,9 @@ np.random.seed(42)
 torch.manual_seed(42)
 ```
 
-## 🚀 Development Setup
-
-### For Contributors
-
-```bash
-# Clone and install in development mode
-git clone https://github.com/mtr26/audio_retrieval.git
-cd audio_retrieval
-pip install -e ".[dev]"
-
-# Run tests
-pytest
-
-# Format code
-black .
-
-# Lint code
-flake8 .
-```
-
-## �📚 References
+## References
 
 - Audio fingerprinting techniques and neural embeddings
 - FAISS: A Library for Efficient Similarity Search
 - Mel-spectrogram processing with librosa
 - Contrastive learning for audio representation
-
-## 📄 License
-
-[Add your license information here]
-
-## 🤝 Contributing
-
-[Add contribution guidelines here]
-
----
-
-*For questions or issues, please check the troubleshooting section or open an issue.*
