@@ -23,6 +23,8 @@ class AudioRetrieval:
     def __init__(self, model_config: ModelConfig):
         self.model = self._prepare_model(model_config)
         self.device = model_config.device
+        self.batch_size = model_config.batch_size
+        self.d_size = model_config.d_model
         self.indexer = Indexer(dim=model_config.d_model)  # Assuming embedding size is 64
         self.segments = []
         self.labels = []
@@ -42,26 +44,49 @@ class AudioRetrieval:
         return model
 
     def _embed(self, segments: torch.Tensor) -> np.ndarray:
-        embeddings = []
-        labels = []
+        labels, segments = zip(*segments)
+        segments = torch.tensor(segments)
+        embeddings = torch.empty((segments.shape[0], self.d_size))
         with torch.no_grad():
-            for label, segment in tqdm.tqdm(segments, desc="Embedding generation..."):
-                segment = torch.from_numpy(segment).to(self.device).unsqueeze(0)
-                embedding = self.model(segment.unsqueeze(0)).squeeze(0)
-                embeddings.append(embedding.cpu().numpy())
-                labels.append(label)
-        return np.array(embeddings), labels
+            start = 0
+            for segment in tqdm.tqdm(segments.split(self.batch_size), desc="Embedding generation..."):
+                segment = segment.to(self.device)
+                embedding = self.model(segment.unsqueeze(1)).squeeze(1)
+                end = start + embedding.size(0)
+                embeddings[start:end] = embedding.cpu()
+                start = end
+        return embeddings.numpy(), labels
 
     def _embed_segments(self, segments: torch.Tensor, verbose: bool = False) -> np.ndarray:
-        embeddings = []
+        segments = torch.tensor(segments)
+        embeddings = torch.empty((segments.shape[0], self.d_size))
         with torch.no_grad():
-            for segment in tqdm.tqdm(segments, desc="Embedding generation...", disable=not verbose):
-                segment = torch.from_numpy(segment).to(self.device).unsqueeze(0)
-                embedding = self.model(segment.unsqueeze(0)).squeeze(0)
-                embeddings.append(embedding.cpu().numpy())
-        return np.array(embeddings)
+            start = 0
+            for segment in tqdm.tqdm(segments.split(self.batch_size), desc="Embedding generation...", disable=not verbose):
+                segment = segment.to(self.device)
+                embedding = self.model(segment.unsqueeze(1)).squeeze(1)
+                end = start + embedding.size(0)
+                embeddings[start:end] = embedding.cpu()
+                start = end
+        return embeddings.numpy()
 
-    def add_songs(self, file_path, label):
+    def _embed_segments(self, segments: torch.Tensor, verbose: bool = False) -> np.ndarray:
+        segments = torch.tensor(segments)
+        embeddings = torch.empty((segments.shape[0], self.d_size))
+        with torch.no_grad():
+            start = 0
+            for segment in tqdm.tqdm(segments.split(self.batch_size), desc="Embedding generation...", disable=not verbose):
+                segment = segment.to(self.device)
+                embedding = self.model(segment.unsqueeze(1)).squeeze(1)
+                end = start + embedding.size(0)
+                embeddings[start:end] = embedding.cpu()
+                start = end
+        return embeddings.numpy()
+
+    def add_songs(self, file_path: str, label: str):
+        """
+        Adds songs to the retrieval system.
+        """
         log_mel_S, sr, hop_length = load_mel_spectrogram(file_path)
         segments = split_spectrogram(log_mel_S, sr, hop_length)
         if label not in self.labels:
@@ -70,7 +95,11 @@ class AudioRetrieval:
             self.segments.append((label, segments[:, :, j]))
         print(f"Added {len(self.segments)} segments for {len(self.labels)} classes.")
 
-    def load_n_segments(self, file_path, n, start_id=None):
+    def load_n_segments(self, file_path: str, n: int, start_id: int = None) -> List[np.ndarray]:
+        """
+        Load n segments from a given audio file, starting from start_id if provided.
+        If start_id is None, a random starting point is chosen.
+        """
         log_mel_S, sr, hop_length = load_mel_spectrogram(file_path)
         segments = split_spectrogram(log_mel_S, sr, hop_length)
         true_seg = []
@@ -83,6 +112,9 @@ class AudioRetrieval:
         return true_seg[left:right+1]
     
     def query_segments(self, segments: List[np.ndarray], top_k=5) -> List[Tuple[str, float]]:
+        """
+        Query the index with a list of segments and return the most frequent label among the top_k results.
+        """
         embeddings = self._embed_segments(segments, verbose=False)
         result = self.indexer.query(embeddings, top_k=top_k)
         predicted_labels = {}
@@ -97,12 +129,18 @@ class AudioRetrieval:
         return max(label_mean_scores.items(), key=lambda x: x[1], default=("unknown", 0.0))
 
     def build_index(self):
+        """
+        Create the embeddings and build the FAISS index for efficient similarity search.
+        """
         if not self.segments:
             raise ValueError("No segments to index. Please add songs first.")
         embeddings, labels = self._embed(self.segments)
         self.indexer.add(embeddings, labels)
 
     def query(self, file_path: str, top_k=5) -> List[Tuple[str, float]]:
+        """
+        Query the index with a list of segments and return the most frequent label among the top_k results.
+        """
         log_mel_S, sr, hop_length = load_mel_spectrogram(file_path)
         segments = split_spectrogram(log_mel_S, sr, hop_length)
         s = []

@@ -1,19 +1,18 @@
 import sys
 import os
 import random
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import numpy as np
 import torch
+
+# Direct import now that audio_retrieval is a proper module
+from audio_retrieval import AudioRetrieval, ModelConfig
 
 SEED = 42
 
 np.random.seed(SEED)
 torch.manual_seed(SEED)
 random.seed(SEED)
-
-from audio_retrieval.retrieval import AudioRetrieval
-from audio_retrieval.model import ModelConfig
 
 TOP_K = 20
 
@@ -23,6 +22,7 @@ model_config = ModelConfig(
     u_size=32, 
     device='cpu',
     compile_mode='default',
+    batch_size=64,
     model_path=os.path.join(os.path.dirname(__file__), "model_64-2.pth"))
 retrieval_system = AudioRetrieval(model_config=model_config)
 

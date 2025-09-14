@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from dataclasses import dataclass
@@ -11,9 +10,10 @@ Based on arxiv:2010.11910
 class ModelConfig:
     d_model: int = 64
     hidden_size: int = 1024
-    u_size: int = 32
+    u_size: int = 32,
+    batch_size: int = 32
     model_path: str = None
-    compile_mode: str = 'default'  # 'default', 'reduce_overhead', 'max_autotune', 'min_autotune' or 'None
+    compile_mode: str = 'default'  # 'default', 'reduce_overhead', 'max_autotune', 'min_autotune' or 'None'
     device: str = 'cpu'  # 'cpu' or 'cuda', for tpu load using torch_xla, but multiprocessing on tpu not tested yet
 
 class SeperableConv2d(nn.Module):
@@ -71,34 +71,6 @@ class ConvolutionalEncoder(nn.Module):
         x = self.flat(x)
         return x
 
-
-"""
-class ProjectionHead(nn.Module):
-    def __init__(self, h, d, u):
-        super().__init__()
-        assert h % d == 0
-        v = h // d
-        self.d = d
-        self.mlps = nn.ModuleList([
-            nn.Sequential(
-                nn.Linear(v, u),
-                nn.ELU(inplace=True),
-                nn.Linear(u, v)
-            )
-            for _ in range(d)
-        ])
-
-    def forward(self, x):
-        # x: (batch, h)
-        parts = x.chunk(self.d, dim=1)
-        out_parts = []
-        for i, part in enumerate(parts):
-            y = self.mlps[i](part)
-            out_parts.append(y)
-        y = torch.cat(out_parts, dim=1)
-        y = F.normalize(y, p=2, dim=1)    # L2-normalize each vector
-        return y
-"""
 
 class ProjectionHead(nn.Module):
     def __init__(self, h, d, u):

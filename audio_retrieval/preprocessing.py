@@ -19,9 +19,7 @@ def split_spectrogram(log_mel_S, sr, hop_length, segment_duration_sec=1.0, overl
     hop_frames = int((segment_duration_sec - overlap_sec) * sr / hop_length)
     n_mels, n_frames = log_mel_S.shape
 
-    # Optionally pad so that (n_frames - segment_frames) is divisible by hop_frames
     if pad_mode is not None:
-        # Compute how many frames to pad
         if n_frames < segment_frames:
             pad_amount = segment_frames - n_frames
         else:
@@ -36,15 +34,12 @@ def split_spectrogram(log_mel_S, sr, hop_length, segment_duration_sec=1.0, overl
             n_frames = log_mel_S.shape[1]
 
     segments = []
-    # Loop over start indices
     for start in range(0, n_frames - segment_frames + 1, hop_frames):
         seg = log_mel_S[:, start:start + segment_frames]  # shape (n_mels, segment_frames)
         segments.append(seg)
 
     if segments:
-        # Stack into array: shape (n_mels, segment_frames, n_segments)
         segments = np.stack(segments, axis=2)
     else:
-        # No full segment fits
         segments = np.empty((n_mels, segment_frames, 0), dtype=log_mel_S.dtype)
     return segments

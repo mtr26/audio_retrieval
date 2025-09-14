@@ -1,0 +1,14 @@
+# Core dependencies
+torch>=2.5.0
+librosa>=0.8.0
+faiss-cpu>=1.7.0
+numpy>=1.19.0
+tqdm>=4.60.0
+
+# Optional GPU support (uncomment if using GPU)
+# faiss-gpu>=1.7.0
+
+# Development dependencies (optional)
+# pytest>=6.0.0
+# black>=21.0.0
+# flake8>=3.8.0

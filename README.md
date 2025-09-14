@@ -4,7 +4,28 @@ A neural audio fingerprinting system for content-based audio retrieval using dee
 
 ## 🎯 Overview
 
-This system processes audio files by:
+This syst## 📚 References
+
+- Audio fingerprinting techniques and neural embeddings
+- FAISS: A Library for Efficient Similarity Search
+- Mel-spectrogram processing with librosa
+- Contrastive learning for audio representation
+
+## 📄 License
+
+MIT License - see LICENSE file for details.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+*For questions or issues, please check the troubleshooting section or open an issue on GitHub.* files by:
 1. Converting audio to mel-spectrograms
 2. Extracting segments using overlapping windows
 3. Generating neural embeddings using a CNN-based fingerprint model
@@ -16,7 +37,7 @@ This system processes audio files by:
 ```
 audio_retrieval/
 ├── audio_retrieval/           # Main package
-│   ├── __init__.py
+│   ├── __init__.py           # Package initialization and exports
 │   ├── model.py              # Neural network architecture
 │   ├── preprocessing.py      # Audio preprocessing utilities
 │   ├── indexing.py          # FAISS-based similarity search
@@ -31,10 +52,30 @@ audio_retrieval/
 │       ├── birds/
 │       ├── cats/
 │       └── dogs/
-└── README.md
+├── setup.py                # Package configuration
+├── requirements.txt        # Dependencies
+└── README.md               # This file
 ```
 
 ## 🛠️ Installation
+
+### Method 1: Install as Package (Recommended)
+
+```bash
+# Clone the repository
+git clone https://github.com/mtr26/audio_retrieval.git
+cd audio_retrieval
+
+# Install in development mode
+pip install -e .
+```
+
+### Method 2: Install Dependencies Only
+
+```bash
+# Install from requirements.txt
+pip install -r requirements.txt
+```
 
 ### Prerequisites
 - Python 3.8+
@@ -44,25 +85,21 @@ audio_retrieval/
 - numpy
 - tqdm
 
-### Install Dependencies
-```bash
-pip install torch librosa faiss-cpu numpy tqdm
-```
-
 ## 🚀 Quick Start
 
 ### Basic Usage
 
 ```python
-from audio_retrieval.retrieval import AudioRetrieval
-from audio_retrieval.model import ModelConfig
+from audio_retrieval import AudioRetrieval, ModelConfig
 
 # Configure the model
 model_config = ModelConfig(
     d_model=64,           # Embedding dimension
     hidden_size=1024,     # Hidden layer size
     u_size=32,           # Projection layer size
-    device='cpu'         # or 'cuda'
+    device='cpu',        # or 'cuda'
+    batch_size=64,       # Batch size for processing
+    model_path='path/to/pretrained.pth'  # Optional pre-trained weights
 )
 
 # Initialize retrieval system
@@ -135,6 +172,7 @@ ModelConfig(
     hidden_size=1024,        # Hidden layer size
     u_size=32,              # Projection intermediate size
     device='cpu',           # Device: 'cpu' or 'cuda'
+    batch_size=64,          # Batch size for embedding generation
     model_path=None,        # Path to pre-trained weights
     compile_mode='default'  # PyTorch compilation mode
 )
@@ -194,7 +232,77 @@ The model expects training with:
 - Data augmentation (pitch shift, time stretch, noise)
 - Hard negative mining for better embeddings
 
-## 📚 References
+## � Package Information
+
+- **Author**: Mohamed Traore
+- **Email**: mohamed.trapro@gmail.com
+- **Version**: 0.1.0
+- **License**: MIT
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**1. OpenMP Library Conflicts**
+```bash
+export KMP_DUPLICATE_LIB_OK=TRUE
+```
+
+**2. Model Loading Errors**
+- Ensure model architecture matches saved weights
+- Use `strict=False` in `load_state_dict()` for partial loading
+
+**3. Audio Loading Issues**  
+- Install additional audio backends: `pip install soundfile`
+- Check supported sample rates and formats
+
+**4. Memory Issues**
+- Reduce batch size or number of segments
+- Use CPU instead of GPU for large datasets
+
+**5. Import Errors**
+```bash
+# If getting ModuleNotFoundError, install the package:
+pip install -e .
+
+# Or add to PYTHONPATH:
+export PYTHONPATH="/path/to/audio_retrieval:$PYTHONPATH"
+```
+
+### Performance Optimization
+```python
+# Disable multiprocessing warnings
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning, module='multiprocessing.resource_tracker')
+
+# Set random seeds for reproducibility
+import random, numpy as np, torch
+random.seed(42)
+np.random.seed(42)  
+torch.manual_seed(42)
+```
+
+## 🚀 Development Setup
+
+### For Contributors
+
+```bash
+# Clone and install in development mode
+git clone https://github.com/mtr26/audio_retrieval.git
+cd audio_retrieval
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Format code
+black .
+
+# Lint code
+flake8 .
+```
+
+## �📚 References
 
 - Audio fingerprinting techniques and neural embeddings
 - FAISS: A Library for Efficient Similarity Search
