@@ -221,7 +221,7 @@ The model expects training with:
 - **Version**: 0.1.0
 - **License**: MIT
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
